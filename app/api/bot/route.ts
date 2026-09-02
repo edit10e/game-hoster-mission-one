@@ -34,7 +34,7 @@ bot.command("vs", async (ctx) => {
   const match = messageText.match(/\/vs\s+@?(\w+)/);
   
   if (!match) {
-    await ctx.reply("⚠️ กรุณาระบุคู่ท้าทายด้วย เช่น `/vs @username`", { parse_mode: "Markdown" });
+    await ctx.reply("⚠️ กรุณาระบุคู่ท้าทายด้วย เช่น <code>/vs @username</code>", { parse_mode: "HTML" });
     return;
   }
 
@@ -85,7 +85,7 @@ bot.command("vs", async (ctx) => {
 
   // ส่งข้อความโดยใช้ HTML เพื่อหลีกเลี่ยง Error จากเครื่องหมาย _ ในชื่อ User
   await ctx.reply(
-    `<b>ดวล!</b>\n🥊 ${user1Name} ท้า @${targetUsername}\n\n @${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
+    `<b>ดวล!</b>\n🥊 ${user1Name} ท้า @${targetUsername}\n\n@${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
       reply_markup: keyboard,
       parse_mode: "HTML",
