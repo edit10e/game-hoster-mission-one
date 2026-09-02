@@ -44,7 +44,7 @@ bot.command("vs", async (ctx) => {
 
   const user1Name = user1.username ? `@${user1.username}` : user1.first_name;
   const gameId = `game_${Date.now()}_${user1.id}`;
-  const webAppUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app"}?gameId=${gameId}`;
+  // const webAppUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app"}?gameId=${gameId}`;
 
   // สร้าง Session เกมใหม่
   const gameSession = {
@@ -77,13 +77,16 @@ bot.command("vs", async (ctx) => {
     })
   );
 
-  // 1. เปลี่ยนจาก .webApp เป็น .url
+ // 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
+  const appShortName = "app"; // เปลี่ยนตาม Short Name ที่ตั้งใน BotFather
+  const webAppUrl = `https://t.me/gameshosterbot/${appShortName}?startapp=${gameId}`;
+
+  // 2. สร้างปุ่ม URL ที่ชี้ไปยัง Direct Link ของ Mini App
   const keyboard = new InlineKeyboard().url(
-    "เข้าเกม",
+    "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
     webAppUrl
   );
 
-  // 2. ส่งข้อความแบบ HTML
   await ctx.reply(
     `<b>ดวล!</b>\n ${user1Name} ท้า @${targetUsername}\n\n@${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
