@@ -77,15 +77,15 @@ bot.command("vs", async (ctx) => {
     })
   );
 
-  // สร้างปุ่มกดเปิด Mini App
-  const keyboard = new InlineKeyboard().webApp(
+  // 1. เปลี่ยนจาก .webApp เป็น .url
+  const keyboard = new InlineKeyboard().url(
     "เข้าเกม",
     webAppUrl
   );
 
-  // ส่งข้อความโดยใช้ HTML เพื่อหลีกเลี่ยง Error จากเครื่องหมาย _ ในชื่อ User
+  // 2. ส่งข้อความแบบ HTML
   await ctx.reply(
-    `<b>ดวล!</b>\n🥊 ${user1Name} ท้า @${targetUsername}\n\n@${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
+    `<b>ดวล!</b>\n ${user1Name} ท้า @${targetUsername}\n\n@${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
       reply_markup: keyboard,
       parse_mode: "HTML",
