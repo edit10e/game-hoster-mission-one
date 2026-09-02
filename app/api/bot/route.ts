@@ -42,6 +42,7 @@ bot.command("vs", async (ctx) => {
   const user1 = ctx.from;
   if (!user1) return;
 
+  const user1Name = user1.username ? `@${user1.username}` : user1.first_name;
   const gameId = `game_${Date.now()}_${user1.id}`;
   const webAppUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app"}?gameId=${gameId}`;
 
@@ -49,8 +50,8 @@ bot.command("vs", async (ctx) => {
   const gameSession = {
     id: gameId,
     chatId: ctx.chat.id,
-    user1: { id: user1.id, username: user1.username || user1.first_name, accepted: true },
-    user2: { id: 0, username: targetUsername, accepted: false },
+    user1: { id: user1.id, username: user1Name, accepted: true },
+    user2: { id: 0, username: `@${targetUsername}`, accepted: false },
     status: "waiting_accept" as const,
     createdAt: Date.now(),
   };
@@ -67,7 +68,7 @@ bot.command("vs", async (ctx) => {
           try {
             await ctx.api.sendMessage(
               ctx.chat.id,
-              `⏱️ การท้าทายจาก @${game.user1.username} ถึง @${targetUsername} หมดเวลาแล้ว (ไม่มีการตอบรับใน 60 วินาที)`
+              `คำท้าจาก ${user1Name} ถึง @${targetUsername} หมดเวลาแล้ว (ไม่มีการตอบรับใน 60 วินาที)`
             );
           } catch (_) {}
         }
@@ -78,15 +79,16 @@ bot.command("vs", async (ctx) => {
 
   // สร้างปุ่มกดเปิด Mini App
   const keyboard = new InlineKeyboard().webApp(
-    "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
+    "เข้าเกม",
     webAppUrl
   );
 
+  // ส่งข้อความโดยใช้ HTML เพื่อหลีกเลี่ยง Error จากเครื่องหมาย _ ในชื่อ User
   await ctx.reply(
-    `🎮 **การดวลเริ่มต้นขึ้นแล้ว!**\n🥊 @${user1.username} ได้ท้าทาย @${targetUsername}\n\n⏳ @${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
+    `<b>ดวล!</b>\n🥊 ${user1Name} ท้า @${targetUsername}\n\n @${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
       reply_markup: keyboard,
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
     }
   );
 });
