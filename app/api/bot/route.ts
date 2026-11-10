@@ -77,12 +77,12 @@ bot.command("vs", async (ctx) => {
     })
   );
 
- // 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
-  const appShortName = "app"; // เปลี่ยนตาม Short Name ที่ตั้งใน BotFather
+// 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
+  const appShortName = "app"; 
   const webAppUrl = `https://t.me/gameshosterbot/${appShortName}?startapp=${gameId}`;
 
-  // 2. สร้างปุ่ม URL ที่ชี้ไปยัง Direct Link ของ Mini App
-  const keyboard = new InlineKeyboard().url(
+  // 2. 🌟 เปลี่ยนจาก .url() เป็น .webApp() ตรงนี้ครับ!
+  const keyboard = new InlineKeyboard().webApp(
     "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
     webAppUrl
   );
@@ -94,7 +94,7 @@ bot.command("vs", async (ctx) => {
       parse_mode: "HTML",
     }
   );
-});
+  
 
 // -------------------------------------------------------------
 // จัดการข้อความทั้งหมดในกลุ่ม (ข้อ 1 และ ข้อ 4)
