@@ -77,21 +77,24 @@ bot.command("vs", async (ctx) => {
     })
   );
 
- // 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
 // 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
-  const appShortName = "app"; 
+  const appShortName = "app";
   const webAppUrl = `https://t.me/gameshosterbot/${appShortName}?startapp=${gameId}`;
 
-  // 2. ใช้ .url() แทน เพื่อให้ Telegram เปิดเป็น Mini App ได้โดยไม่ติด Error ในกลุ่ม
-  const keyboard = new InlineKeyboard().url(
-    "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
-    webAppUrl
-  );
-
+  // 2. ใช้โครงสร้าง JSON ของ Telegram โดยระบุ web_app: { url: ... } โดยตรง
   await ctx.reply(
     `<b>⚔️ ${user1Name}</b>\n  ท้า @${targetUsername}\n ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
-      reply_markup: keyboard,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
+              web_app: { url: webAppUrl }, // 🌟 จุดเปลี่ยนสำคัญ: ใช้ web_app แทน url
+            },
+          ],
+        ],
+      },
       parse_mode: "HTML",
     }
   );
