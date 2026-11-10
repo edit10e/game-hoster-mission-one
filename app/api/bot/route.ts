@@ -32,7 +32,7 @@ bot.command("random", async (ctx) => {
 bot.command("vs", async (ctx) => {
   const messageText = ctx.message?.text || "";
   const match = messageText.match(/\/vs\s+@?(\w+)/);
-
+  
   if (!match) {
     await ctx.reply("⚠️ กรุณาระบุคู่ท้าทายด้วย เช่น <code>/vs @username</code>", { parse_mode: "HTML" });
     return;
@@ -44,6 +44,7 @@ bot.command("vs", async (ctx) => {
 
   const user1Name = user1.username ? `@${user1.username}` : user1.first_name;
   const gameId = `game_${Date.now()}_${user1.id}`;
+  // const webAppUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app"}?gameId=${gameId}`;
 
   // สร้าง Session เกมใหม่
   const gameSession = {
@@ -76,12 +77,13 @@ bot.command("vs", async (ctx) => {
     })
   );
 
-  // ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather
-  const appShortName = "app";
+ // 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
+// 1. ระบุ Short Name ของ Mini App ที่ตั้งใน BotFather (เช่น app)
+  const appShortName = "app"; 
   const webAppUrl = `https://t.me/gameshosterbot/${appShortName}?startapp=${gameId}`;
 
-  // ใช้ .webApp() สำหรับปุ่มเปิด Mini App
-  const keyboard = new InlineKeyboard().webApp(
+  // 2. ใช้ .url() แทน เพื่อให้ Telegram เปิดเป็น Mini App ได้โดยไม่ติด Error ในกลุ่ม
+  const keyboard = new InlineKeyboard().url(
     "⚔️ เข้าสู่หน้าดวลเกม (Mini App)",
     webAppUrl
   );
@@ -93,10 +95,9 @@ bot.command("vs", async (ctx) => {
       parse_mode: "HTML",
     }
   );
-});
 
 // -------------------------------------------------------------
-// จัดการข้อความทั้งหมดในกลุ่ม (ข้อ 1 และ ข้อ 4) -> แยกอยู่นอกคำสั่ง /vs อย่างถูกต้อง
+// จัดการข้อความทั้งหมดในกลุ่ม (ข้อ 1 และ ข้อ 4)
 // -------------------------------------------------------------
 bot.on("message", async (ctx) => {
   const message = ctx.message;
@@ -111,26 +112,30 @@ bot.on("message", async (ctx) => {
   // 1. ตรวจสอบ ลิงก์ / Forward Message / คำต้องห้าม (ข้อ 1)
   const hasLink = message.entities?.some((e) => e.type === "url" || e.type === "text_link") || text.includes("http://") || text.includes("https://");
   
+  // ตรวจสอบ Forward Message แบบรองรับทุกเวอร์ชันของ Telegram API
   const isForwarded = Boolean(
     message.forward_origin ||
     (message as any).forward_from ||
     (message as any).forward_from_chat
   );
-
+  
   const hasBlacklistWord = BLACKLIST_WORDS.some((word) => text.toLowerCase().includes(word.toLowerCase()));
 
   if (hasLink || isForwarded || hasBlacklistWord) {
+    // ลบข้อความสแปมทันที
     try {
       await ctx.deleteMessage();
     } catch (err) {
       console.error("Failed to delete message:", err);
     }
 
+    // คำนวณนับจำนวนการเตือน (1/3, 2/3, 3/3)
     const key = `${userId}_${chatId}`;
     const currentWarnings = (userWarnings.get(key) || 0) + 1;
     userWarnings.set(key, currentWarnings);
 
     if (currentWarnings >= 3) {
+      // เตะออกจากกลุ่ม
       try {
         await ctx.banChatMember(userId);
         await ctx.reply(`🚫 ${username} ผิดกฎครบ 3/3 ครั้ง`);
@@ -139,6 +144,7 @@ bot.on("message", async (ctx) => {
         await ctx.reply(`⚠️ ไม่สามารถลบ ${username} ออกได้ (บอทอาจไม่มีสิทธิ์ Admin)`);
       }
     } else {
+      // แจ้งเตือนสแปม
       let reason = "คำต้องห้าม";
       if (hasLink) reason = "ไม่อนุญาตให้ส่งลิงก์";
       if (isForwarded) reason = "ไม่อนุญาตให้ Forward ข้อความ";
@@ -153,11 +159,13 @@ bot.on("message", async (ctx) => {
 
   if (isMedia) {
     try {
+      // ส่งข้อความ reply เตือนผู้ใช้
       const warningMsg = await ctx.reply(
         `📌 ${username} ข้อความนี้จะถูกลบใน 30 วินาที`,
         { reply_to_message_id: message.message_id }
       );
 
+      // ใช้ waitUntil เพื่อให้ Vercel Serverless นับเวลาลบสื่อ 30 วินาทีต่อจนเสร็จสมบูรณ์
       waitUntil(
         new Promise((resolve) => {
           setTimeout(async () => {
