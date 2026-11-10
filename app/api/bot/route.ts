@@ -88,7 +88,7 @@ bot.command("vs", async (ctx) => {
   );
 
   await ctx.reply(
-    `<b>ดวล!</b>\n ${user1Name} ท้า @${targetUsername}\n\n@${targetUsername} ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
+    `<b>⚔️ ${user1Name}</b>\n  ท้า @${targetUsername}\n ต้องกดปุ่มยอมรับภายใน 60 วินาที!`,
     {
       reply_markup: keyboard,
       parse_mode: "HTML",
@@ -161,7 +161,7 @@ bot.on("message", async (ctx) => {
     try {
       // ส่งข้อความ reply เตือนผู้ใช้
       const warningMsg = await ctx.reply(
-        `📌 ${username} ข้อความสื่อนี้จะถูกลบอัตโนมัติภายใน 30 วินาที`,
+        `📌 ${username} ข้อความนี้จะถูกลบใน 30 วินาที`,
         { reply_to_message_id: message.message_id }
       );
 
